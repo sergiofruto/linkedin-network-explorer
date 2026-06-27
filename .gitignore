@@ -1,0 +1,21 @@
+# Neo4j Docker volume
+neo4j_data/
+
+# Environment files
+.env
+web/.env.local
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Node
+web/node_modules/
+web/.next/
+
+# Source data (sensitive — never commit)
+x-connections.json
+
+# OS
+.DS_Store
