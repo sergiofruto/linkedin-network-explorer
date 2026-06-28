@@ -67,6 +67,13 @@ def analyze(session) -> None:
     """, "PageRank — influence score")
     print()
 
+    # ── Betweenness Centrality: Bridge Nodes ──────────────────────────────────
+    run(session, f"""
+        CALL gds.betweenness.write('{GRAPH}', {{writeProperty: 'betweenness'}})
+        YIELD nodePropertiesWritten
+    """, "Betweenness Centrality — bridge nodes")
+    print()
+
     session.run(f"CALL gds.graph.drop('{GRAPH}') YIELD graphName")
 
     print("Component sizes (top 10):")
@@ -94,6 +101,14 @@ def analyze(session) -> None:
         ORDER BY p.pagerank DESC LIMIT 10
     """):
         print(f"  {r['name']:<35s}  PR={r['pr']:.4f}  community={r['community']}")
+
+    print("\nTop 10 by Betweenness:")
+    for r in session.run("""
+        MATCH (p:Person)
+        RETURN p.full_name AS name, p.betweenness AS bc, p.community_id AS community
+        ORDER BY p.betweenness DESC LIMIT 10
+    """):
+        print(f"  {r['name']:<35s}  BC={r['bc']:.1f}  community={r['community']}")
 
 
 def main():
