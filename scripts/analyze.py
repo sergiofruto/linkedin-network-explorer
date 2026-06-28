@@ -74,6 +74,15 @@ def analyze(session) -> None:
     """, "Betweenness Centrality — bridge nodes")
     print()
 
+    # ── Weighted Degree ───────────────────────────────────────────────────────
+    run(session, f"""
+        CALL gds.degree.write('{GRAPH}', {{
+            writeProperty: 'degree',
+            relationshipWeightProperty: 'weight'
+        }}) YIELD nodePropertiesWritten
+    """, "Weighted Degree")
+    print()
+
     session.run(f"CALL gds.graph.drop('{GRAPH}') YIELD graphName")
 
     print("Component sizes (top 10):")
@@ -109,6 +118,14 @@ def analyze(session) -> None:
         ORDER BY p.betweenness DESC LIMIT 10
     """):
         print(f"  {r['name']:<35s}  BC={r['bc']:.1f}  community={r['community']}")
+
+    print("\nTop 10 by Degree:")
+    for r in session.run("""
+        MATCH (p:Person)
+        RETURN p.full_name AS name, p.degree AS degree, p.community_id AS community
+        ORDER BY p.degree DESC LIMIT 10
+    """):
+        print(f"  {r['name']:<35s}  degree={r['degree']:.0f}  community={r['community']}")
 
 
 def main():
