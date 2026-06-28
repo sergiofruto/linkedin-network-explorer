@@ -56,6 +56,17 @@ def analyze(session) -> None:
     """, "Louvain — community detection")
     print(f"    → {r['communityCount']} communities · modularity={r['modularity']:.4f}\n")
 
+    # ── PageRank: Influence Score ─────────────────────────────────────────────
+    run(session, f"""
+        CALL gds.pageRank.write('{GRAPH}', {{
+            writeProperty: 'pagerank',
+            relationshipWeightProperty: 'weight',
+            maxIterations: 20,
+            dampingFactor: 0.85
+        }}) YIELD ranIterations, nodePropertiesWritten
+    """, "PageRank — influence score")
+    print()
+
     session.run(f"CALL gds.graph.drop('{GRAPH}') YIELD graphName")
 
     print("Component sizes (top 10):")
@@ -75,6 +86,14 @@ def analyze(session) -> None:
         RETURN community, size
     """):
         print(f"  Community {r['community']:>5}: {r['size']} people")
+
+    print("\nTop 10 by PageRank:")
+    for r in session.run("""
+        MATCH (p:Person)
+        RETURN p.full_name AS name, p.pagerank AS pr, p.community_id AS community
+        ORDER BY p.pagerank DESC LIMIT 10
+    """):
+        print(f"  {r['name']:<35s}  PR={r['pr']:.4f}  community={r['community']}")
 
 
 def main():
