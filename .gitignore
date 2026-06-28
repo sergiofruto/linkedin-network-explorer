@@ -14,7 +14,7 @@ __pycache__/
 web/node_modules/
 web/.next/
 
-# Source data (sensitive — never commit)
+# Source data
 x-connections.json
 
 # OS
