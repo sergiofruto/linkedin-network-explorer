@@ -47,6 +47,15 @@ def analyze(session) -> None:
     """, "WCC — weakly connected components")
     print(f"    → {r['componentCount']} components\n")
 
+    # ── Louvain: Community Detection ──────────────────────────────────────────
+    r = run(session, f"""
+        CALL gds.louvain.write('{GRAPH}', {{
+            writeProperty: 'community_id',
+            relationshipWeightProperty: 'weight'
+        }}) YIELD communityCount, modularity
+    """, "Louvain — community detection")
+    print(f"    → {r['communityCount']} communities · modularity={r['modularity']:.4f}\n")
+
     session.run(f"CALL gds.graph.drop('{GRAPH}') YIELD graphName")
 
     print("Component sizes (top 10):")
@@ -57,6 +66,15 @@ def analyze(session) -> None:
         RETURN component, size
     """):
         print(f"  Component {r['component']:>5}: {r['size']} people")
+
+    print("\nCommunity sizes (top 10):")
+    for r in session.run("""
+        MATCH (p:Person)
+        WITH p.community_id AS community, count(*) AS size
+        ORDER BY size DESC LIMIT 10
+        RETURN community, size
+    """):
+        print(f"  Community {r['community']:>5}: {r['size']} people")
 
 
 def main():
