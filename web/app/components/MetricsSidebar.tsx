@@ -1,7 +1,9 @@
-import type { NetworkMetrics } from '@/lib/types'
+import type { NetworkMetrics, PersonNode } from '@/lib/types'
+import { SearchBox } from './SearchBox'
 
 interface Props {
   metrics: NetworkMetrics
+  nodes: PersonNode[]
   onNodeSelect: (id: string) => void
 }
 
@@ -12,9 +14,10 @@ const statCards = (m: NetworkMetrics) => [
   { label: 'Components', value: m.components, color: 'text-rose-400', bg: 'bg-rose-500/10', sub: 'disconnected groups' },
 ]
 
-export function MetricsSidebar({ metrics, onNodeSelect }: Props) {
+export function MetricsSidebar({ metrics, nodes, onNodeSelect }: Props) {
   return (
     <aside className="w-56 shrink-0 bg-gray-950 border-r border-white/5 p-4 flex flex-col gap-6 overflow-y-auto">
+      <SearchBox nodes={nodes} onSelect={onNodeSelect} />
       <div>
         <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Network Health</p>
         <div className="grid grid-cols-2 gap-2">

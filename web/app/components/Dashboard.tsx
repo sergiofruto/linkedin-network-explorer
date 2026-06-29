@@ -100,7 +100,7 @@ export function Dashboard() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <MetricsSidebar metrics={metrics} onNodeSelect={handleNodeSelect} />
+      <MetricsSidebar metrics={metrics} nodes={graph.nodes} onNodeSelect={handleNodeSelect} />
 
       <main className={`flex-1 relative ${viewMode === 'arc' ? 'overflow-x-auto overflow-y-hidden' : 'overflow-hidden'}`}>
         <div className="sticky left-0 top-3 z-10 flex items-center gap-3 pl-3 mb-0">
