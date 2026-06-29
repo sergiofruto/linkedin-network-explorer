@@ -2,12 +2,7 @@
 import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 import type { PersonNode, GraphLink } from '@/lib/types'
-import { communityName } from '@/lib/communities'
-
-const COMMUNITY_COLORS = [
-  '#818cf8', '#34d399', '#fbbf24', '#fb7185',
-  '#60a5fa', '#a78bfa', '#f472b6', '#2dd4bf',
-]
+import { communityName, COMMUNITY_COLORS } from '@/lib/communities'
 
 interface Props {
   nodes: PersonNode[]

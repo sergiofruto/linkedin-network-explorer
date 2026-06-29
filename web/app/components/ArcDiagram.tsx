@@ -2,12 +2,7 @@
 import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 import type { PersonNode, GraphLink } from '@/lib/types'
-import { communityShort } from '@/lib/communities'
-
-const COMMUNITY_COLORS = [
-  '#818cf8', '#34d399', '#fbbf24', '#fb7185',
-  '#60a5fa', '#a78bfa', '#f472b6', '#2dd4bf',
-]
+import { communityShort, COMMUNITY_COLORS } from '@/lib/communities'
 
 const TOP_N = 50           // show only the most connected people
 const NODE_SPACING = 22

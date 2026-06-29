@@ -1,11 +1,7 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import type { PersonNode } from '@/lib/types'
-
-const COMMUNITY_COLORS = [
-  '#818cf8', '#34d399', '#fbbf24', '#fb7185',
-  '#60a5fa', '#a78bfa', '#f472b6', '#2dd4bf',
-]
+import { communityColor } from '@/lib/communities'
 
 interface Props {
   nodes: PersonNode[]
@@ -77,7 +73,7 @@ export function SearchBox({ nodes, onSelect }: Props) {
               >
                 <span
                   className="w-2 h-2 rounded-full shrink-0"
-                  style={{ background: COMMUNITY_COLORS[node.community_id % COMMUNITY_COLORS.length] }}
+                  style={{ background: communityColor(node.community_id) }}
                 />
                 <span className="text-xs text-gray-200 truncate">{node.name}</span>
                 {node.title && (

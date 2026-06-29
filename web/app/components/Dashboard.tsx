@@ -6,6 +6,7 @@ import { ChordDiagram } from './ChordDiagram'
 import { ArcDiagram } from './ArcDiagram'
 import { MetricsSidebar } from './MetricsSidebar'
 import { NodePanel } from './NodePanel'
+import { CommunityLegend } from './CommunityLegend'
 
 type ViewMode = 'force' | 'chord' | 'arc'
 
@@ -222,6 +223,7 @@ export function Dashboard() {
               resetSignal={resetSignal}
             />
             <OverlayStack />
+            <CommunityLegend nodes={graph.nodes} />
           </>
         )}
         {viewMode === 'chord' && (

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useCallback, useState, forwardRef, useImperativeHandle } from 'react'
 import * as d3 from 'd3'
 import type { PersonNode, GraphLink } from '@/lib/types'
+import { COMMUNITY_COLORS } from '@/lib/communities'
 
 export interface ForceGraphHandle {
   zoomBy: (factor: number) => void
@@ -9,11 +10,6 @@ export interface ForceGraphHandle {
 
 type SimNode = PersonNode & d3.SimulationNodeDatum
 type SimLink = Omit<GraphLink, 'source' | 'target'> & d3.SimulationLinkDatum<SimNode>
-
-const COMMUNITY_COLORS = [
-  '#818cf8', '#34d399', '#fbbf24', '#fb7185',
-  '#60a5fa', '#a78bfa', '#f472b6', '#2dd4bf',
-]
 
 interface Props {
   nodes: PersonNode[]
