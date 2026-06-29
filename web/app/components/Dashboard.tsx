@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import type { GraphData, NetworkMetrics, PersonNode } from '@/lib/types'
 import { ForceGraph, type ForceGraphHandle } from './ForceGraph'
 import { ChordDiagram } from './ChordDiagram'
@@ -58,10 +58,28 @@ export function Dashboard() {
   const [resetSignal, setResetSignal] = useState(0)
   const [minWeight, setMinWeight] = useState<1 | 2>(2)
   const [zoomLevel, setZoomLevel] = useState(1)
+  const [egoMode, setEgoMode] = useState(false)
   const forceGraphRef = useRef<ForceGraphHandle>(null)
+
+  // Exit ego mode when selection clears
+  useEffect(() => { if (!selectedId) setEgoMode(false) }, [selectedId])
+
+  const displayGraph = useMemo(() => {
+    if (!egoMode || !selectedId) return graph
+    const neighborIds = new Set<string>([selectedId])
+    graph.links.forEach(l => {
+      if (l.source === selectedId) neighborIds.add(l.target)
+      if (l.target === selectedId) neighborIds.add(l.source)
+    })
+    return {
+      nodes: graph.nodes.filter(n => neighborIds.has(n.id)),
+      links: graph.links.filter(l => neighborIds.has(l.source as string) && neighborIds.has(l.target as string)),
+    }
+  }, [egoMode, selectedId, graph])
 
   const handleReset = useCallback(() => {
     setSelectedId(null)
+    setEgoMode(false)
     setResetSignal(s => s + 1)
   }, [])
 
@@ -120,9 +138,23 @@ export function Dashboard() {
             ))}
           </div>
           <span className="text-xs text-gray-600">
-            {graph.nodes.length} people · {graph.links.filter(l => l.weight >= minWeight).length} connections
-            {infoText}
+            {egoMode && selectedId
+              ? `${displayGraph.nodes.length} people · ${displayGraph.links.length} connections · ego network`
+              : `${graph.nodes.length} people · ${graph.links.filter(l => l.weight >= minWeight).length} connections${infoText}`
+            }
           </span>
+          {viewMode === 'force' && selectedId && (
+            <button
+              onClick={() => setEgoMode(e => !e)}
+              className={`text-xs border rounded-full px-3 py-1 cursor-pointer transition-colors ${
+                egoMode
+                  ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-300'
+                  : 'border-white/10 text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              Ego network
+            </button>
+          )}
           {viewMode === 'force' && (
             <div className="flex items-center gap-1 border border-white/10 rounded-full overflow-hidden">
               <button
@@ -170,8 +202,8 @@ export function Dashboard() {
           <>
             <ForceGraph
               ref={forceGraphRef}
-              nodes={graph.nodes}
-              links={graph.links}
+              nodes={displayGraph.nodes}
+              links={displayGraph.links}
               selectedId={selectedId}
               onNodeClick={handleNodeClick}
               onZoomChange={setZoomLevel}
