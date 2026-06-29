@@ -88,11 +88,23 @@ export function Dashboard() {
       .then(r => r.json())
       .then((data: GraphData) => {
         setGraph(data)
-        const francis = data.nodes.find(n => n.name === 'Francis Pedraza')
-        if (francis) setSelectedId(francis.id)
+        const nodeFromUrl = new URLSearchParams(window.location.search).get('node')
+        if (nodeFromUrl && data.nodes.find(n => n.id === nodeFromUrl)) {
+          setSelectedId(nodeFromUrl)
+        } else {
+          const francis = data.nodes.find(n => n.name === 'Francis Pedraza')
+          if (francis) setSelectedId(francis.id)
+        }
       })
     fetch('/api/metrics').then(r => r.json()).then(setMetrics)
   }, [])
+
+  useEffect(() => {
+    const url = new URL(window.location.href)
+    if (selectedId) url.searchParams.set('node', selectedId)
+    else url.searchParams.delete('node')
+    window.history.replaceState({}, '', url.toString())
+  }, [selectedId])
 
   const handleNodeClick = useCallback((node: PersonNode) => {
     setSelectedId(prev => prev === node.id ? null : node.id)
