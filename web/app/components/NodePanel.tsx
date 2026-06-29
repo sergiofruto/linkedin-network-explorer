@@ -29,7 +29,7 @@ export function NodePanel({ nodeId, onClose, onNodeSelect }: Props) {
     <div className="absolute right-4 top-4 bottom-4 w-52 bg-gray-950/90 border border-indigo-500/30 rounded-xl p-4 backdrop-blur-sm overflow-y-auto z-10">
       <button
         onClick={onClose}
-        className="absolute top-3 right-3 text-gray-500 hover:text-white text-sm"
+        className="absolute top-3 right-3 text-gray-500 hover:text-white text-sm cursor-pointer"
         aria-label="Close"
       >
         ✕
@@ -67,7 +67,7 @@ export function NodePanel({ nodeId, onClose, onNodeSelect }: Props) {
                   <li key={c.id}>
                     <button
                       onClick={() => onNodeSelect(c.id)}
-                      className="text-xs text-gray-300 hover:text-white text-left truncate w-full transition-colors"
+                      className="text-xs text-gray-300 hover:text-white text-left truncate w-full transition-colors cursor-pointer"
                     >
                       {c.name}
                     </button>
@@ -82,7 +82,7 @@ export function NodePanel({ nodeId, onClose, onNodeSelect }: Props) {
               href={`https://${profile.linkedin_url.replace(/^https?:\/\//, '')}`}
               target="_blank"
               rel="noreferrer"
-              className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+              className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
             >
               ↗ LinkedIn
             </a>

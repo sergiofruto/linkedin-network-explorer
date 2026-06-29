@@ -34,7 +34,7 @@ export function MetricsSidebar({ metrics, onNodeSelect }: Props) {
             <li key={p.id}>
               <button
                 onClick={() => onNodeSelect(p.id)}
-                className="text-sm text-indigo-400 hover:text-indigo-300 text-left truncate w-full transition-colors"
+                className="text-sm text-indigo-400 hover:text-indigo-300 text-left truncate w-full transition-colors cursor-pointer"
               >
                 ● {p.name}
               </button>
@@ -50,7 +50,7 @@ export function MetricsSidebar({ metrics, onNodeSelect }: Props) {
             <li key={p.id}>
               <button
                 onClick={() => onNodeSelect(p.id)}
-                className="text-sm text-amber-400 hover:text-amber-300 text-left truncate w-full transition-colors"
+                className="text-sm text-amber-400 hover:text-amber-300 text-left truncate w-full transition-colors cursor-pointer"
               >
                 ◆ {p.name}
               </button>

@@ -9,6 +9,26 @@ import { NodePanel } from './NodePanel'
 
 type ViewMode = 'force' | 'chord' | 'arc'
 
+function IntroOverlay() {
+  const [dismissed, setDismissed] = useState(false)
+  if (dismissed) return null
+  return (
+    <div className="absolute top-14 left-3 z-20 w-64 bg-gray-950/95 border border-white/10 rounded-xl p-4 backdrop-blur-sm">
+      <button
+        onClick={() => setDismissed(true)}
+        className="absolute top-3 right-3 text-gray-500 hover:text-white text-xs cursor-pointer transition-colors"
+        aria-label="Dismiss"
+      >
+        ✕
+      </button>
+      <p className="text-xs font-semibold text-white mb-2">Francis Pedraza&apos;s Network</p>
+      <p className="text-xs text-gray-400 leading-relaxed">
+        248 LinkedIn connections mapped as a graph. Francis is highlighted because he ranks #1 by PageRank — the most influential connector in this network.
+      </p>
+    </div>
+  )
+}
+
 export function Dashboard() {
   const [graph, setGraph] = useState<GraphData>({ nodes: [], links: [] })
   const [metrics, setMetrics] = useState<NetworkMetrics | null>(null)
@@ -22,7 +42,13 @@ export function Dashboard() {
   }, [])
 
   useEffect(() => {
-    fetch('/api/graph').then(r => r.json()).then(setGraph)
+    fetch('/api/graph')
+      .then(r => r.json())
+      .then((data: GraphData) => {
+        setGraph(data)
+        const francis = data.nodes.find(n => n.name === 'Francis Pedraza')
+        if (francis) setSelectedId(francis.id)
+      })
     fetch('/api/metrics').then(r => r.json()).then(setMetrics)
   }, [])
 
@@ -59,7 +85,7 @@ export function Dashboard() {
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
-                className={`px-3 py-1 transition-colors capitalize ${
+                className={`px-3 py-1 transition-colors capitalize cursor-pointer ${
                   viewMode === mode
                     ? 'bg-white text-gray-900 font-medium'
                     : 'text-gray-400 hover:text-gray-200'
@@ -76,7 +102,7 @@ export function Dashboard() {
           {viewMode === 'force' && (
             <button
               onClick={handleReset}
-              className="text-xs text-gray-500 hover:text-gray-300 transition-colors border border-white/10 rounded-full px-3 py-1"
+              className="text-xs text-gray-500 hover:text-gray-300 transition-colors border border-white/10 rounded-full px-3 py-1 cursor-pointer"
             >
               Reset view
             </button>
@@ -84,13 +110,16 @@ export function Dashboard() {
         </div>
 
         {viewMode === 'force' && (
-          <ForceGraph
-            nodes={graph.nodes}
-            links={graph.links}
-            selectedId={selectedId}
-            onNodeClick={handleNodeClick}
-            resetSignal={resetSignal}
-          />
+          <>
+            <ForceGraph
+              nodes={graph.nodes}
+              links={graph.links}
+              selectedId={selectedId}
+              onNodeClick={handleNodeClick}
+              resetSignal={resetSignal}
+            />
+            <IntroOverlay />
+          </>
         )}
         {viewMode === 'chord' && (
           <ChordDiagram
