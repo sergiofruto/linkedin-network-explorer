@@ -36,5 +36,9 @@ export interface NodeProfile {
   community_id: number
   pagerank: number
   betweenness: number
+  degree: number
+  pagerank_rank: number
+  betweenness_rank: number
+  community_size: number
   top_connections: Array<{ id: string; name: string; weight: number }>
 }

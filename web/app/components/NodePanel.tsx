@@ -8,6 +8,28 @@ interface Props {
   onNodeSelect: (id: string) => void
 }
 
+function RoleBadge({ label, color }: { label: string; color: string }) {
+  return (
+    <span className={`inline-block text-[10px] font-medium px-2 py-0.5 rounded-full border ${color}`}>
+      {label}
+    </span>
+  )
+}
+
+function MetricRow({
+  label, value, sub, color,
+}: { label: string; value: string; sub: string; color: string }) {
+  return (
+    <div className="flex items-start justify-between gap-2">
+      <div>
+        <p className="text-xs text-gray-500">{label}</p>
+        <p className="text-[10px] text-gray-600 mt-0.5">{sub}</p>
+      </div>
+      <p className={`text-sm font-semibold tabular-nums ${color}`}>{value}</p>
+    </div>
+  )
+}
+
 export function NodePanel({ nodeId, onClose, onNodeSelect }: Props) {
   const [profile, setProfile] = useState<NodeProfile | null>(null)
   const [loading, setLoading] = useState(false)
@@ -26,65 +48,89 @@ export function NodePanel({ nodeId, onClose, onNodeSelect }: Props) {
   if (!nodeId) return null
 
   return (
-    <div className="absolute right-4 top-4 bottom-4 w-52 bg-gray-950/90 border border-indigo-500/30 rounded-xl p-4 backdrop-blur-sm overflow-y-auto z-10">
+    <div className="absolute right-4 top-4 bottom-4 w-64 bg-gray-950/90 border border-indigo-500/30 rounded-xl p-5 backdrop-blur-sm overflow-y-auto z-10">
       <button
         onClick={onClose}
-        className="absolute top-3 right-3 text-gray-500 hover:text-white text-sm cursor-pointer"
+        className="absolute top-4 right-4 text-gray-500 hover:text-white text-sm cursor-pointer transition-colors"
         aria-label="Close"
-      >
-        ✕
-      </button>
+      >✕</button>
 
       {loading && <p className="text-xs text-gray-500 mt-6">Loading...</p>}
       {!loading && error && <p className="text-xs text-rose-400 mt-6">Failed to load profile.</p>}
 
       {!loading && profile && (
         <>
-          <p className="text-sm font-semibold text-indigo-400 pr-5 leading-snug">{profile.full_name}</p>
-          <p className="text-xs text-gray-500 mt-1 mb-4 leading-snug">{profile.title ?? '—'}</p>
+          {/* Header */}
+          <p className="text-sm font-semibold text-indigo-400 pr-6 leading-snug">{profile.full_name}</p>
+          <p className="text-xs text-gray-500 mt-1 leading-snug">{profile.title ?? '—'}</p>
           {profile.location && (
-            <p className="text-xs text-gray-600 mb-4">{profile.location}</p>
+            <p className="text-[11px] text-gray-600 mt-1">{profile.location}</p>
           )}
 
-          <div className="space-y-2 mb-5">
-            {[
-              { label: 'PageRank', value: profile.pagerank?.toFixed(4), color: 'text-emerald-400' },
-              { label: 'Betweenness', value: profile.betweenness?.toFixed(4), color: 'text-amber-400' },
-              { label: 'Community', value: `#${profile.community_id}`, color: 'text-indigo-400' },
-            ].map(({ label, value, color }) => (
-              <div key={label} className="flex justify-between text-xs">
-                <span className="text-gray-500">{label}</span>
-                <span className={color}>{value}</span>
-              </div>
-            ))}
+          {/* Role badges */}
+          <div className="flex flex-wrap gap-1.5 mt-3">
+            {profile.pagerank_rank <= 10 && (
+              <RoleBadge label="Top Connector" color="text-indigo-400 border-indigo-500/40" />
+            )}
+            {profile.betweenness_rank <= 10 && (
+              <RoleBadge label="Key Bridge" color="text-amber-400 border-amber-500/40" />
+            )}
+            {profile.pagerank_rank > 10 && profile.betweenness_rank > 10 && (
+              <RoleBadge label={`Community #${profile.community_id}`} color="text-gray-400 border-white/15" />
+            )}
           </div>
 
+          {/* Metrics */}
+          <div className="mt-4 space-y-3">
+            <MetricRow
+              label="Influence (PageRank)"
+              value={profile.pagerank.toFixed(4)}
+              sub={`#${profile.pagerank_rank} of 248 people`}
+              color="text-emerald-400"
+            />
+            <MetricRow
+              label="Bridging (Betweenness)"
+              value={profile.betweenness.toFixed(1)}
+              sub={`#${profile.betweenness_rank} · connects communities`}
+              color="text-amber-400"
+            />
+            <MetricRow
+              label="Direct connections"
+              value={String(profile.degree)}
+              sub={`in community of ${profile.community_size} people`}
+              color="text-indigo-300"
+            />
+          </div>
+
+          {/* Top connections */}
           {profile.top_connections.length > 0 && (
-            <>
-              <p className="text-xs text-gray-500 uppercase tracking-widest mb-2">Top connections</p>
-              <ul className="space-y-1 mb-4">
+            <div className="mt-5">
+              <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2">Strongest ties</p>
+              <ul className="space-y-1.5">
                 {profile.top_connections.map(c => (
-                  <li key={c.id}>
+                  <li key={c.id} className="flex items-center justify-between gap-2">
                     <button
                       onClick={() => onNodeSelect(c.id)}
-                      className="text-xs text-gray-300 hover:text-white text-left truncate w-full transition-colors cursor-pointer"
+                      className="text-xs text-gray-300 hover:text-white text-left truncate transition-colors cursor-pointer"
                     >
                       {c.name}
                     </button>
+                    <span className="text-[10px] text-gray-600 shrink-0">×{c.weight}</span>
                   </li>
                 ))}
               </ul>
-            </>
+            </div>
           )}
 
+          {/* LinkedIn */}
           {profile.linkedin_url && (
             <a
               href={`https://${profile.linkedin_url.replace(/^https?:\/\//, '')}`}
               target="_blank"
               rel="noreferrer"
-              className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
+              className="mt-5 flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
             >
-              ↗ LinkedIn
+              <span>↗</span> LinkedIn profile
             </a>
           )}
         </>

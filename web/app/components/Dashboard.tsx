@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import type { GraphData, NetworkMetrics, PersonNode } from '@/lib/types'
 import { ForceGraph, type ForceGraphHandle } from './ForceGraph'
 import { ChordDiagram } from './ChordDiagram'
@@ -9,22 +9,43 @@ import { NodePanel } from './NodePanel'
 
 type ViewMode = 'force' | 'chord' | 'arc'
 
-function IntroOverlay() {
+function DismissableBox({ children }: { children: React.ReactNode }) {
   const [dismissed, setDismissed] = useState(false)
   if (dismissed) return null
   return (
-    <div className="absolute top-14 left-3 z-20 w-64 bg-gray-950/95 border border-white/10 rounded-xl p-4 backdrop-blur-sm">
+    <div className="relative w-60 bg-gray-950/95 border border-white/10 rounded-xl p-4 backdrop-blur-sm">
       <button
         onClick={() => setDismissed(true)}
         className="absolute top-3 right-3 text-gray-500 hover:text-white text-xs cursor-pointer transition-colors"
         aria-label="Dismiss"
-      >
-        ✕
-      </button>
-      <p className="text-xs font-semibold text-white mb-2">Francis Pedraza&apos;s Network</p>
-      <p className="text-xs text-gray-400 leading-relaxed">
-        248 LinkedIn connections mapped as a graph. Francis is highlighted because he ranks #1 by PageRank — the most influential connector in this network.
-      </p>
+      >✕</button>
+      {children}
+    </div>
+  )
+}
+
+function OverlayStack() {
+  return (
+    <div className="absolute top-14 left-3 z-20 flex flex-col gap-2">
+      <DismissableBox>
+        <p className="text-xs font-semibold text-white mb-2">Francis Pedraza&apos;s Network</p>
+        <p className="text-xs text-gray-400 leading-relaxed">
+          248 LinkedIn connections mapped as a graph. Francis is highlighted because he ranks #1 by PageRank — the most influential connector in this network.
+        </p>
+      </DismissableBox>
+      <DismissableBox>
+        <p className="text-xs font-semibold text-white mb-3">How to explore</p>
+        <ul className="space-y-1.5 text-xs text-gray-400">
+          <li><span className="text-gray-600 mr-1.5">↕</span>Scroll or use +/- to zoom</li>
+          <li><span className="text-gray-600 mr-1.5">✥</span>Drag to pan</li>
+          <li><span className="text-gray-600 mr-1.5">◎</span>Click a node to see their profile</li>
+          <li><span className="text-gray-600 mr-1.5">◈</span>Hover to highlight connections</li>
+        </ul>
+        <div className="mt-3 pt-3 border-t border-white/5 space-y-1 text-xs text-gray-500">
+          <p>Node <span className="text-gray-400">size</span> = influence (PageRank)</p>
+          <p>Node <span className="text-gray-400">color</span> = community cluster</p>
+        </div>
+      </DismissableBox>
     </div>
   )
 }
@@ -156,7 +177,7 @@ export function Dashboard() {
               onZoomChange={setZoomLevel}
               resetSignal={resetSignal}
             />
-            <IntroOverlay />
+            <OverlayStack />
           </>
         )}
         {viewMode === 'chord' && (

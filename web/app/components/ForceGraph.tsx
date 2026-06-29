@@ -117,6 +117,23 @@ export const ForceGraph = forwardRef<ForceGraphHandle, Props>(function ForceGrap
         .attr('stroke', 'none')
         .attr('stroke-width', 2)
         .attr('cursor', 'pointer')
+        .on('mouseover', function(_event, d) {
+          const fill = COMMUNITY_COLORS[d.community_id % COMMUNITY_COLORS.length]
+          d3.select(this).raise()
+            .transition().duration(100)
+            .attr('r', nodeRadius(d, maxPr) * 1.2)
+            .attr('fill', d3.color(fill)?.brighter(0.7)?.toString() ?? fill)
+            .attr('opacity', 1)
+        })
+        .on('mouseout', function(_event, d) {
+          const fill = COMMUNITY_COLORS[d.community_id % COMMUNITY_COLORS.length]
+          const sel = selectedIdRef.current
+          d3.select(this)
+            .transition().duration(150)
+            .attr('r', nodeRadius(d, maxPr))
+            .attr('fill', fill)
+            .attr('opacity', sel === null || sel === d.id ? 0.9 : 0.35)
+        })
         .on('click', (_event, d) => onClickRef.current(d))
         .call(
           d3.drag<SVGCircleElement, SimNode>()
