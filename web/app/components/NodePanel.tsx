@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import type { NodeProfile } from '@/lib/types'
+import { communityName } from '@/lib/communities'
 
 interface Props {
   nodeId: string | null
@@ -76,7 +77,7 @@ export function NodePanel({ nodeId, onClose, onNodeSelect }: Props) {
               <RoleBadge label="Key Bridge" color="text-amber-400 border-amber-500/40" />
             )}
             {profile.pagerank_rank > 10 && profile.betweenness_rank > 10 && (
-              <RoleBadge label={`Community #${profile.community_id}`} color="text-gray-400 border-white/15" />
+              <RoleBadge label={communityName(profile.community_id)} color="text-gray-400 border-white/15" />
             )}
           </div>
 
@@ -97,7 +98,7 @@ export function NodePanel({ nodeId, onClose, onNodeSelect }: Props) {
             <MetricRow
               label="Direct connections"
               value={String(profile.degree)}
-              sub={`in community of ${profile.community_size} people`}
+              sub={`${communityName(profile.community_id)} (${profile.community_size} people)`}
               color="text-indigo-300"
             />
           </div>

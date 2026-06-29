@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 import type { PersonNode, GraphLink } from '@/lib/types'
+import { communityShort } from '@/lib/communities'
 
 const COMMUNITY_COLORS = [
   '#818cf8', '#34d399', '#fbbf24', '#fb7185',
@@ -116,7 +117,7 @@ export function ArcDiagram({ nodes, links, minWeight = 2 }: Props) {
           .attr('fill', color)
           .attr('font-size', '8px')
           .attr('text-anchor', 'start')
-          .text(`C${node.community_id}`)
+          .text(communityShort(node.community_id))
       }
     })
 

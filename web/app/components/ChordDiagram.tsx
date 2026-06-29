@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 import type { PersonNode, GraphLink } from '@/lib/types'
+import { communityName } from '@/lib/communities'
 
 const COMMUNITY_COLORS = [
   '#818cf8', '#34d399', '#fbbf24', '#fb7185',
@@ -133,6 +134,36 @@ export function ChordDiagram({ nodes, links, minWeight = 2 }: Props) {
       .attr('fill', '#e5e7eb')
       .attr('font-size', '9px')
       .text(d => (top25.has(sorted[d.index].id) ? sorted[d.index].name : ''))
+
+    // Community name labels at the midpoint of each community's arc span
+    const communitySpans: { cid: number; start: number; end: number }[] = []
+    chords.groups.forEach((grp, i) => {
+      const cid = sorted[i].community_id
+      const last = communitySpans[communitySpans.length - 1]
+      if (last && last.cid === cid) {
+        last.end = grp.endAngle
+      } else {
+        communitySpans.push({ cid, start: grp.startAngle, end: grp.endAngle })
+      }
+    })
+
+    const labelR = outerRadius + 28
+    g.append('g')
+      .selectAll('text')
+      .data(communitySpans.filter(s => s.end - s.start > 0.15))
+      .join('text')
+      .attr('transform', d => {
+        const angle = (d.start + d.end) / 2
+        const rotate = (angle * 180) / Math.PI - 90
+        const flip = angle > Math.PI
+        return `rotate(${rotate}) translate(${labelR},0)${flip ? ' rotate(180)' : ''}`
+      })
+      .attr('text-anchor', d => ((d.start + d.end) / 2 > Math.PI ? 'end' : 'start'))
+      .attr('fill', d => COMMUNITY_COLORS[d.cid % COMMUNITY_COLORS.length])
+      .attr('font-size', '10px')
+      .attr('font-weight', '500')
+      .attr('dy', '0.35em')
+      .text(d => communityName(d.cid))
 
     return () => {
       tooltip.style('opacity', '0')
