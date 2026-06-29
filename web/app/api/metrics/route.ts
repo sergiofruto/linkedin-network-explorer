@@ -26,6 +26,9 @@ export async function GET() {
 
     const top_betweenness = await runQuery<{ id: string; name: string; betweenness: number }>(`
       MATCH (p:Person)
+      WITH p.component_id AS cid, count(*) AS size
+      ORDER BY size DESC LIMIT 1
+      MATCH (p:Person) WHERE p.component_id = cid
       RETURN p.id AS id, p.full_name AS name, coalesce(p.betweenness, 0.0) AS betweenness
       ORDER BY betweenness DESC LIMIT 10
     `)

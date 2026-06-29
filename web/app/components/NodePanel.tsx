@@ -91,7 +91,7 @@ export function NodePanel({ nodeId, onClose, onNodeSelect }: Props) {
             <MetricRow
               label="Bridging (Betweenness)"
               value={profile.betweenness.toFixed(1)}
-              sub={`#${profile.betweenness_rank} · connects communities`}
+              sub={`#${profile.betweenness_rank} in main component`}
               color="text-amber-400"
             />
             <MetricRow

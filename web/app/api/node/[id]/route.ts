@@ -17,7 +17,7 @@ export async function GET(
     }
     CALL {
       WITH p
-      MATCH (hb:Person) WHERE hb.betweenness > p.betweenness
+      MATCH (hb:Person) WHERE hb.betweenness > p.betweenness AND hb.component_id = p.component_id
       RETURN count(hb) + 1 AS betweenness_rank
     }
     CALL {
