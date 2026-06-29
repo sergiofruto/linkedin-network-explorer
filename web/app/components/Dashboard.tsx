@@ -1,7 +1,7 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import type { GraphData, NetworkMetrics, PersonNode } from '@/lib/types'
-import { ForceGraph } from './ForceGraph'
+import { ForceGraph, type ForceGraphHandle } from './ForceGraph'
 import { ChordDiagram } from './ChordDiagram'
 import { ArcDiagram } from './ArcDiagram'
 import { MetricsSidebar } from './MetricsSidebar'
@@ -36,6 +36,8 @@ export function Dashboard() {
   const [viewMode, setViewMode] = useState<ViewMode>('force')
   const [resetSignal, setResetSignal] = useState(0)
   const [minWeight, setMinWeight] = useState<1 | 2>(2)
+  const [zoomLevel, setZoomLevel] = useState(1)
+  const forceGraphRef = useRef<ForceGraphHandle>(null)
 
   const handleReset = useCallback(() => {
     setSelectedId(null)
@@ -101,6 +103,23 @@ export function Dashboard() {
             {infoText}
           </span>
           {viewMode === 'force' && (
+            <div className="flex items-center gap-1 border border-white/10 rounded-full overflow-hidden">
+              <button
+                onClick={() => forceGraphRef.current?.zoomBy(1 / 1.3)}
+                className="px-2 py-1 text-gray-400 hover:text-white transition-colors cursor-pointer text-sm leading-none"
+                aria-label="Zoom out"
+              >−</button>
+              <span className="text-xs text-gray-500 w-9 text-center tabular-nums select-none">
+                {Math.round(zoomLevel * 100)}%
+              </span>
+              <button
+                onClick={() => forceGraphRef.current?.zoomBy(1.3)}
+                className="px-2 py-1 text-gray-400 hover:text-white transition-colors cursor-pointer text-sm leading-none"
+                aria-label="Zoom in"
+              >+</button>
+            </div>
+          )}
+          {viewMode === 'force' && (
             <button
               onClick={handleReset}
               className="text-xs text-gray-500 hover:text-gray-300 transition-colors border border-white/10 rounded-full px-3 py-1 cursor-pointer"
@@ -129,10 +148,12 @@ export function Dashboard() {
         {viewMode === 'force' && (
           <>
             <ForceGraph
+              ref={forceGraphRef}
               nodes={graph.nodes}
               links={graph.links}
               selectedId={selectedId}
               onNodeClick={handleNodeClick}
+              onZoomChange={setZoomLevel}
               resetSignal={resetSignal}
             />
             <IntroOverlay />

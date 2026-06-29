@@ -1,7 +1,11 @@
 'use client'
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState, forwardRef, useImperativeHandle } from 'react'
 import * as d3 from 'd3'
 import type { PersonNode, GraphLink } from '@/lib/types'
+
+export interface ForceGraphHandle {
+  zoomBy: (factor: number) => void
+}
 
 type SimNode = PersonNode & d3.SimulationNodeDatum
 type SimLink = Omit<GraphLink, 'source' | 'target'> & d3.SimulationLinkDatum<SimNode>
@@ -16,10 +20,14 @@ interface Props {
   links: GraphLink[]
   selectedId: string | null
   onNodeClick: (node: PersonNode) => void
+  onZoomChange?: (level: number) => void
   resetSignal?: number
 }
 
-export function ForceGraph({ nodes, links, selectedId, onNodeClick, resetSignal }: Props) {
+export const ForceGraph = forwardRef<ForceGraphHandle, Props>(function ForceGraph(
+  { nodes, links, selectedId, onNodeClick, onZoomChange, resetSignal }: Props,
+  ref
+) {
   const svgRef = useRef<SVGSVGElement>(null)
   const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null)
   const simNodesRef = useRef<SimNode[]>([])
@@ -27,6 +35,14 @@ export function ForceGraph({ nodes, links, selectedId, onNodeClick, resetSignal 
   const onClickRef = useRef(onNodeClick)
   const simRunningRef = useRef(true)
   const selectedIdRef = useRef(selectedId)
+  const [ready, setReady] = useState(false)
+
+  useImperativeHandle(ref, () => ({
+    zoomBy: (factor: number) => {
+      if (!svgRef.current || !zoomRef.current) return
+      d3.select(svgRef.current).transition().duration(200).call(zoomRef.current.scaleBy, factor)
+    }
+  }))
 
   useEffect(() => { onClickRef.current = onNodeClick }, [onNodeClick])
   useEffect(() => { selectedIdRef.current = selectedId }, [selectedId])
@@ -37,6 +53,7 @@ export function ForceGraph({ nodes, links, selectedId, onNodeClick, resetSignal 
   // ── Graph initialization — only re-runs when data changes ──────────────────
   useEffect(() => {
     if (!svgRef.current || nodes.length === 0) return
+    setReady(false)
 
     const el = svgRef.current
     let sim: d3.Simulation<SimNode, SimLink> | null = null
@@ -74,6 +91,7 @@ export function ForceGraph({ nodes, links, selectedId, onNodeClick, resetSignal 
         .scaleExtent([0.2, 5])
         .on('zoom', event => {
           g.attr('transform', event.transform)
+          onZoomChange?.(event.transform.k)
           if (event.sourceEvent) userInteracted = true
         })
 
@@ -127,20 +145,23 @@ export function ForceGraph({ nodes, links, selectedId, onNodeClick, resetSignal 
           .attr('cy', d => d.y ?? 0)
       })
 
-      // Pan to the selected node (Francis on initial load) once simulation settles
+      // Fit all nodes into view once simulation settles, then reveal the graph
       sim.on('end', () => {
         simRunningRef.current = false
-        if (userInteracted) return
-        const targetId = selectedIdRef.current
-        const target = targetId
-          ? simNodes.find(n => n.id === targetId)
-          : simNodes.find(n => n.name === 'Francis Pedraza')
-        if (!target || target.x == null || target.y == null) return
-        const transform = d3.zoomIdentity
-          .translate(width / 2, height / 2)
-          .scale(2.5)
-          .translate(-target.x, -target.y)
-        d3.select(el).transition().duration(600).call(zoom.transform, transform)
+        if (!userInteracted) {
+          const pad = 60
+          const xs = simNodes.map(n => n.x ?? 0)
+          const ys = simNodes.map(n => n.y ?? 0)
+          const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad
+          const y0 = Math.min(...ys) - pad, y1 = Math.max(...ys) + pad
+          const scale = 0.57
+          const tx = (width - (x0 + x1) * scale) / 2
+          const ty = (height - (y0 + y1) * scale) / 2
+          d3.select(el)
+            .transition().duration(600)
+            .call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale))
+        }
+        setReady(true)
       })
     }
 
@@ -201,5 +222,14 @@ export function ForceGraph({ nodes, links, selectedId, onNodeClick, resetSignal 
       .call(zoomRef.current.transform, d3.zoomIdentity)
   }, [resetSignal])
 
-  return <svg ref={svgRef} className="w-full h-full" />
-}
+  return (
+    <div className="w-full h-full relative">
+      {!ready && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <p className="text-sm text-gray-500">Loading network...</p>
+        </div>
+      )}
+      <svg ref={svgRef} className={`w-full h-full transition-opacity duration-500 ${ready ? 'opacity-100' : 'opacity-0'}`} />
+    </div>
+  )
+})
