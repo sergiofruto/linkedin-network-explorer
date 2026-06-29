@@ -72,7 +72,7 @@ export function Dashboard() {
   const infoText = {
     force: ' · scroll to zoom · drag to pan',
     chord: ' · hover to highlight',
-    arc: ' · scroll horizontally to explore',
+    arc: ' · top 50 by influence · scroll to explore · hover to highlight',
   }[viewMode]
 
   return (
