@@ -16,9 +16,10 @@ const MAX_ARC_HEIGHT = 120
 interface Props {
   nodes: PersonNode[]
   links: GraphLink[]
+  minWeight?: number
 }
 
-export function ArcDiagram({ nodes, links }: Props) {
+export function ArcDiagram({ nodes, links, minWeight = 2 }: Props) {
   const svgRef = useRef<SVGSVGElement>(null)
 
   useEffect(() => {
@@ -44,7 +45,7 @@ export function ArcDiagram({ nodes, links }: Props) {
       if (typeof l.source !== 'string' || typeof l.target !== 'string') return false
       const si = indexById.get(l.source)
       const ti = indexById.get(l.target)
-      return l.weight >= 2 && si !== undefined && ti !== undefined
+      return l.weight >= minWeight && si !== undefined && ti !== undefined
     })
 
     const maxWeight = d3.max(filteredLinks, d => d.weight) ?? 1
@@ -171,7 +172,7 @@ export function ArcDiagram({ nodes, links }: Props) {
       tooltip.style('opacity', '0')
       tooltip.remove()
     }
-  }, [nodes, links])
+  }, [nodes, links, minWeight])
 
   return <svg ref={svgRef} className="block" height={SVG_HEIGHT} />
 }

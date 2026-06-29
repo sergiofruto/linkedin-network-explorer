@@ -11,9 +11,10 @@ const COMMUNITY_COLORS = [
 interface Props {
   nodes: PersonNode[]
   links: GraphLink[]
+  minWeight?: number
 }
 
-export function ChordDiagram({ nodes, links }: Props) {
+export function ChordDiagram({ nodes, links, minWeight = 2 }: Props) {
   const svgRef = useRef<SVGSVGElement>(null)
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export function ChordDiagram({ nodes, links }: Props) {
     // Build symmetric N×N matrix
     const matrix: number[][] = Array.from({ length: n }, () => new Array(n).fill(0))
     links
-      .filter(l => l.weight >= 2)
+      .filter(l => l.weight >= minWeight)
       .forEach(l => {
         const i = indexById.get(l.source)
         const j = indexById.get(l.target)
@@ -137,7 +138,7 @@ export function ChordDiagram({ nodes, links }: Props) {
       tooltip.style('opacity', '0')
       tooltip.remove()
     }
-  }, [nodes, links])
+  }, [nodes, links, minWeight])
 
   return <svg ref={svgRef} className="w-full h-full" />
 }

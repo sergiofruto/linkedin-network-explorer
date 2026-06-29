@@ -35,6 +35,7 @@ export function Dashboard() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<ViewMode>('force')
   const [resetSignal, setResetSignal] = useState(0)
+  const [minWeight, setMinWeight] = useState<1 | 2>(2)
 
   const handleReset = useCallback(() => {
     setSelectedId(null)
@@ -96,7 +97,7 @@ export function Dashboard() {
             ))}
           </div>
           <span className="text-xs text-gray-600">
-            {graph.nodes.length} people · {graph.links.filter(l => l.weight >= 2).length} connections
+            {graph.nodes.length} people · {graph.links.filter(l => l.weight >= minWeight).length} connections
             {infoText}
           </span>
           {viewMode === 'force' && (
@@ -106,6 +107,22 @@ export function Dashboard() {
             >
               Reset view
             </button>
+          )}
+          {(viewMode === 'chord' || viewMode === 'arc') && (
+            <div className="flex rounded-full border border-white/10 overflow-hidden text-xs">
+              <button
+                onClick={() => setMinWeight(2)}
+                className={`px-3 py-1 transition-colors cursor-pointer ${minWeight === 2 ? 'bg-white text-gray-900 font-medium' : 'text-gray-400 hover:text-gray-200'}`}
+              >
+                Strong ties
+              </button>
+              <button
+                onClick={() => setMinWeight(1)}
+                className={`px-3 py-1 transition-colors cursor-pointer ${minWeight === 1 ? 'bg-white text-gray-900 font-medium' : 'text-gray-400 hover:text-gray-200'}`}
+              >
+                All ties
+              </button>
+            </div>
           )}
         </div>
 
@@ -125,6 +142,7 @@ export function Dashboard() {
           <ChordDiagram
             nodes={graph.nodes}
             links={graph.links}
+            minWeight={minWeight}
           />
         )}
         {viewMode === 'arc' && (
@@ -132,6 +150,7 @@ export function Dashboard() {
             <ArcDiagram
               nodes={graph.nodes}
               links={graph.links}
+              minWeight={minWeight}
             />
           </div>
         )}
