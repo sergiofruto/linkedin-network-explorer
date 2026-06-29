@@ -13,6 +13,7 @@ __pycache__/
 # Node
 web/node_modules/
 web/.next/
+*.tsbuildinfo
 
 # Source data
 x-connections.json
