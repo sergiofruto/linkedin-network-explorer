@@ -28,6 +28,7 @@ export const ForceGraph = forwardRef<ForceGraphHandle, Props>(function ForceGrap
   const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null)
   const simNodesRef = useRef<SimNode[]>([])
   const nodeSelRef = useRef<d3.Selection<SVGCircleElement, SimNode, SVGGElement, unknown> | null>(null)
+  const labelSelRef = useRef<d3.Selection<SVGTextElement, SimNode, SVGGElement, unknown> | null>(null)
   const onClickRef = useRef(onNodeClick)
   const simRunningRef = useRef(true)
   const selectedIdRef = useRef(selectedId)
@@ -89,6 +90,8 @@ export const ForceGraph = forwardRef<ForceGraphHandle, Props>(function ForceGrap
           g.attr('transform', event.transform)
           onZoomChange?.(event.transform.k)
           if (event.sourceEvent) userInteracted = true
+          const show = shouldShowLabels(event.transform.k)
+          label.attr('opacity', (d: SimNode) => show || d.id === selectedIdRef.current ? 1 : 0)
         })
 
       zoomRef.current = zoom
@@ -147,6 +150,22 @@ export const ForceGraph = forwardRef<ForceGraphHandle, Props>(function ForceGrap
       node.append('title').text(d => `${d.name}\n${d.title ?? ''}`)
       nodeSelRef.current = node
 
+      const label = g
+        .append('g')
+        .attr('pointer-events', 'none')
+        .selectAll<SVGTextElement, SimNode>('text')
+        .data(simNodes)
+        .join('text')
+        .attr('text-anchor', 'middle')
+        .attr('fill', '#9ca3af')
+        .attr('font-size', '9px')
+        .attr('opacity', 0)
+        .text(d => d.name.split(' ').slice(0, 2).join(' '))
+
+      labelSelRef.current = label
+
+      const shouldShowLabels = (k: number) => k >= 1.0 || simNodes.length <= 50
+
       sim.on('tick', () => {
         link
           .attr('x1', d => (d.source as SimNode).x ?? 0)
@@ -156,23 +175,37 @@ export const ForceGraph = forwardRef<ForceGraphHandle, Props>(function ForceGrap
         node
           .attr('cx', d => d.x ?? 0)
           .attr('cy', d => d.y ?? 0)
+        label
+          .attr('x', d => d.x ?? 0)
+          .attr('y', d => (d.y ?? 0) + nodeRadius(d, maxPr) + 11)
       })
 
-      // Fit all nodes into view once simulation settles, then reveal the graph
+      // Once simulation settles: focus on selected node or fit all nodes
       sim.on('end', () => {
         simRunningRef.current = false
         if (!userInteracted) {
-          const pad = 60
-          const xs = simNodes.map(n => n.x ?? 0)
-          const ys = simNodes.map(n => n.y ?? 0)
-          const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad
-          const y0 = Math.min(...ys) - pad, y1 = Math.max(...ys) + pad
-          const scale = 0.57
-          const tx = (width - (x0 + x1) * scale) / 2
-          const ty = (height - (y0 + y1) * scale) / 2
-          d3.select(el)
-            .transition().duration(600)
-            .call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale))
+          const sel = selectedIdRef.current
+          const target = sel ? simNodes.find(n => n.id === sel) : null
+          if (target && target.x != null && target.y != null) {
+            const scale = 1.5
+            const tx = width / 2 - target.x * scale
+            const ty = height / 2 - target.y * scale
+            d3.select(el)
+              .transition().duration(600)
+              .call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale))
+          } else {
+            const pad = 60
+            const xs = simNodes.map(n => n.x ?? 0)
+            const ys = simNodes.map(n => n.y ?? 0)
+            const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad
+            const y0 = Math.min(...ys) - pad, y1 = Math.max(...ys) + pad
+            const scale = 0.57
+            const tx2 = (width - (x0 + x1) * scale) / 2
+            const ty2 = (height - (y0 + y1) * scale) / 2
+            d3.select(el)
+              .transition().duration(600)
+              .call(zoom.transform, d3.zoomIdentity.translate(tx2, ty2).scale(scale))
+          }
         }
         setReady(true)
       })
@@ -206,6 +239,10 @@ export const ForceGraph = forwardRef<ForceGraphHandle, Props>(function ForceGrap
     node
       .attr('opacity', d => (selectedId === null || selectedId === d.id ? 0.9 : 0.35))
       .attr('stroke', d => (selectedId === d.id ? '#fff' : 'none'))
+
+    labelSelRef.current
+      ?.attr('fill', d => (selectedId === d.id ? '#f3f4f6' : '#9ca3af'))
+      .attr('font-weight', d => (selectedId === d.id ? '600' : 'normal'))
 
     if (!selectedId || !svgRef.current || !zoomRef.current || simRunningRef.current) return
 

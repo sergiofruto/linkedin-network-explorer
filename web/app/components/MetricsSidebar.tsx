@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import type { NetworkMetrics, PersonNode } from '@/lib/types'
 import { SearchBox } from './SearchBox'
 
@@ -31,6 +32,14 @@ export function MetricsSidebar({ metrics, nodes, onNodeSelect }: Props) {
         </div>
       </div>
 
+      <Link
+        href="/analysis"
+        className="flex items-center gap-2 w-full text-xs text-gray-400 hover:text-indigo-300 transition-colors group"
+      >
+        Key Findings
+        <span className="ml-auto text-gray-700 group-hover:text-indigo-500 transition-colors">→</span>
+      </Link>
+
       <div>
         <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Top Connectors</p>
         <ul className="space-y-2">
@@ -62,6 +71,7 @@ export function MetricsSidebar({ metrics, nodes, onNodeSelect }: Props) {
           ))}
         </ul>
       </div>
+
     </aside>
   )
 }
