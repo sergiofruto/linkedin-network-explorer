@@ -61,6 +61,12 @@ export function Dashboard() {
   const [zoomLevel, setZoomLevel] = useState(1)
   const [egoMode, setEgoMode] = useState(false)
   const forceGraphRef = useRef<ForceGraphHandle>(null)
+  // Capture ?node= before the selectedId effect can delete it from the URL
+  const initialNodeId = useRef(
+    typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('node')
+      : null
+  )
 
   // Exit ego mode when selection clears
   useEffect(() => { if (!selectedId) setEgoMode(false) }, [selectedId])
@@ -89,7 +95,7 @@ export function Dashboard() {
       .then(r => r.json())
       .then((data: GraphData) => {
         setGraph(data)
-        const nodeFromUrl = new URLSearchParams(window.location.search).get('node')
+        const nodeFromUrl = initialNodeId.current
         if (nodeFromUrl && data.nodes.find(n => n.id === nodeFromUrl)) {
           setSelectedId(nodeFromUrl)
         } else {
