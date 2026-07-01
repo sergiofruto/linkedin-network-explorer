@@ -21,13 +21,17 @@ Built with Next.js, Neo4j Graph Data Science, and D3.js as part of the Ascendanc
 
 ## Tech stack
 
-| Layer | Tech |
-|---|---|
-| Frontend | Next.js 16 (App Router), TypeScript, Tailwind CSS v4 |
-| Visualization | D3.js v7 (force simulation, chord, arc) |
-| Graph DB | Neo4j + Graph Data Science (local), Neo4j Aura Free (production) |
-| Deployment | Vercel |
-| Auth | Next.js Middleware + httpOnly cookie |
+| Layer | Tech | Version |
+|---|---|---|
+| Frontend | Next.js (App Router), React, TypeScript | 16.2, 19.0, 5.x |
+| Styling | Tailwind CSS | 4.x |
+| Visualization | D3.js (force simulation, chord, arc) | 7.9 |
+| Graph DB driver | neo4j-driver (Node.js) | 6.1 |
+| Graph DB | Neo4j + Graph Data Science (local) | 5.26 |
+| Graph DB (cloud) | Neo4j Aura Free | — |
+| Data scripts | Python | 3.11 |
+| Deployment | Vercel | — |
+| Auth | Next.js Middleware + httpOnly cookie | — |
 
 ---
 
