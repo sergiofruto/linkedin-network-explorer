@@ -132,20 +132,14 @@ export default function AnalysisPage() {
           <SectionHeader>The data</SectionHeader>
           <div className="space-y-3 text-sm text-gray-400 leading-relaxed">
             <p>
-              The dataset comes from a LinkedIn connection enrichment tool. Each record contains a
-              person's work history, education, and LinkedIn metadata. Connections are{' '}
-              <strong className="text-gray-300">implicit</strong> — two people are linked if they
-              share a past employer or school, with the edge weight reflecting how many organizations
-              they have in common.
+              The input is a JSON file — 248 records, one per person. Each record has a name,
+              current title, current company, location, and full work and education history:
+              every employer, every school, with titles and dates. No explicit connections —
+              just raw career data.
             </p>
-            <p>
-              The single most important structural fact:{' '}
-              <strong className="text-gray-300">50% of the network attended Clemson University</strong>.
-              This one institution generates the majority of edges and explains why the two largest
-              communities are both Clemson-anchored.
-            </p>
-            <div className="grid grid-cols-3 sm:grid-cols-3 gap-3 mt-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 mb-1">
               {[
+                { v: '248', l: 'people' },
                 { v: '1,069', l: 'unique companies' },
                 { v: '293', l: 'unique schools' },
                 { v: '51', l: 'components' },
@@ -156,6 +150,55 @@ export default function AnalysisPage() {
                 </div>
               ))}
             </div>
+            <p>
+              The single most important structural fact:{' '}
+              <strong className="text-gray-300">50% of the network attended Clemson University</strong>.
+              This one institution generates the majority of edges and explains why the two largest
+              communities are both Clemson-anchored.
+            </p>
+          </div>
+        </div>
+
+        {/* Processing pipeline */}
+        <div>
+          <SectionHeader>Processing pipeline</SectionHeader>
+          <div className="space-y-5 text-sm text-gray-400 leading-relaxed">
+            <div>
+              <p className="text-gray-300 font-medium mb-1.5">1 — Ingestion</p>
+              <p>
+                The JSON was loaded into Neo4j as a property graph — Person nodes, Company nodes,
+                School nodes, with <code className="text-gray-300 text-xs bg-white/5 px-1 py-0.5 rounded">WORKED_AT</code> and{' '}
+                <code className="text-gray-300 text-xs bg-white/5 px-1 py-0.5 rounded">STUDIED_AT</code> relationships
+                carrying dates and titles. The raw structure is preserved without losing any of the
+                original data.
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-300 font-medium mb-1.5">2 — Edge derivation</p>
+              <p>
+                There are no explicit connections in the dataset. A Cypher query finds pairs of
+                people who share an organization and creates a{' '}
+                <code className="text-gray-300 text-xs bg-white/5 px-1 py-0.5 rounded">KNOWS</code> edge between them,
+                weighted by how many organizations they have in common. One shared org is a weak
+                tie. Two or more means real overlap. That produced{' '}
+                <strong className="text-gray-300">7,163 edges</strong>.
+              </p>
+              <p className="mt-2">
+                The weight threshold matters. At weight ≥ 1, Clemson dominates everything — most
+                connections mean nothing more than both attending the same 30,000-student university.
+                Filtering to weight ≥ 2 surfaces relationships where people actually overlapped at
+                multiple points in their careers.
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-300 font-medium mb-1.5">3 — Analysis</p>
+              <p>
+                Four Graph Data Science algorithms in Neo4j: Weakly Connected Components to find
+                isolated clusters, PageRank for influence, Betweenness Centrality for structural
+                importance, and Louvain for community detection. Those computed values get written
+                back as node properties and drive everything in the visualization.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -163,9 +206,10 @@ export default function AnalysisPage() {
         <div>
           <SectionHeader>How connected is this network?</SectionHeader>
           <p className="text-sm text-gray-400 leading-relaxed mb-5">
-            Moderately connected with a strong core, but fragmented at the edges. 79% of people
-            belong to one giant component; the remaining 53 are in pairs or singletons with no path
-            to the main group.
+            Moderately connected with a strong core, but fragmented at the edges. 195 of 248 people
+            (79%) are all reachable from each other — you can trace a path between any two of them
+            through shared employers or schools. The remaining 53 are isolated: pairs or singletons
+            with no connection to that main cluster.
           </p>
 
           {/* Insight callout */}
