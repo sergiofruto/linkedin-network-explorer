@@ -131,6 +131,80 @@ export function Dashboard() {
 
   return (
     <div className="flex h-screen overflow-hidden">
+      {/* ── Mobile gate ─────────────────────────────────────────────────────── */}
+      <div className="md:hidden flex flex-col min-h-screen w-full bg-gray-950 px-6 py-10 overflow-y-auto">
+        <div className="max-w-sm mx-auto w-full space-y-8">
+          <div>
+            <p className="text-xs text-gray-500 uppercase tracking-widest mb-2">Network Explorer</p>
+            <h1 className="text-xl font-semibold text-white mb-3">Francis Pedraza&apos;s Network</h1>
+            <p className="text-sm text-gray-400 leading-relaxed">
+              248 LinkedIn connections mapped as an interactive graph — communities detected,
+              influence ranked, bridges identified.
+            </p>
+          </div>
+
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3 flex items-start gap-3">
+            <span className="text-amber-400 text-lg leading-none mt-0.5">⎙</span>
+            <div>
+              <p className="text-sm font-medium text-amber-300">Open on desktop for the full graph</p>
+              <p className="text-xs text-gray-500 mt-0.5">The interactive network requires a larger screen to explore.</p>
+            </div>
+          </div>
+
+          <a
+            href="/analysis"
+            className="flex items-center justify-between w-full bg-white/5 hover:bg-white/8 border border-white/10 rounded-xl px-4 py-3 text-sm text-gray-300 hover:text-white transition-colors"
+          >
+            <span>Read key findings</span>
+            <span className="text-gray-600">→</span>
+          </a>
+
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { v: metrics.node_count,            l: 'People',      s: 'LinkedIn connections', c: 'text-indigo-400', bg: 'bg-indigo-500/10' },
+              { v: metrics.communities,            l: 'Communities', s: 'Louvain clusters',     c: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+              { v: metrics.density.toFixed(3),     l: 'Density',     s: 'of possible links',   c: 'text-amber-400',  bg: 'bg-amber-500/10'  },
+              { v: metrics.components,             l: 'Components',  s: 'disconnected groups', c: 'text-rose-400',   bg: 'bg-rose-500/10'   },
+            ].map(s => (
+              <div key={s.l} className={`${s.bg} rounded-xl p-3`}>
+                <p className={`text-xl font-bold ${s.c}`}>{s.v}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{s.l}</p>
+                <p className="text-[10px] text-gray-600 mt-0.5 leading-tight">{s.s}</p>
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Top Connectors</p>
+            <ul className="space-y-2">
+              {metrics.top_pagerank.slice(0, 6).map((p, i) => (
+                <li key={p.id} className="flex items-center gap-2 text-sm text-gray-300">
+                  <span className="text-gray-600 w-4 text-right">{i + 1}</span>
+                  <span className="text-indigo-400">●</span>
+                  {p.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Key Bridges</p>
+            <ul className="space-y-2">
+              {metrics.top_betweenness.slice(0, 6).map((p, i) => (
+                <li key={p.id} className="flex items-center gap-2 text-sm text-gray-300">
+                  <span className="text-gray-600 w-4 text-right">{i + 1}</span>
+                  <span className="text-amber-400">◆</span>
+                  {p.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ── Desktop layout ───────────────────────────────────────────────────── */}
+      <div className="hidden md:flex flex-1 overflow-hidden">
       <MetricsSidebar metrics={metrics} nodes={graph.nodes} onNodeSelect={handleNodeSelect} />
 
       <main className={`flex-1 relative ${viewMode === 'arc' ? 'overflow-x-auto overflow-y-hidden' : 'overflow-hidden'}`}>
@@ -251,6 +325,7 @@ export function Dashboard() {
           />
         )}
       </main>
+      </div>
     </div>
   )
 }

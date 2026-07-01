@@ -90,7 +90,7 @@ export default function AnalysisPage() {
         <span className="text-xs text-gray-600">Network Analysis</span>
       </div>
 
-      <div className="max-w-3xl mx-auto px-6 py-12 space-y-14">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-10 sm:space-y-14">
 
         {/* Hero */}
         <div>
@@ -139,7 +139,7 @@ export default function AnalysisPage() {
               This one institution generates the majority of edges and explains why the two largest
               communities are both Clemson-anchored.
             </p>
-            <div className="grid grid-cols-3 gap-3 mt-4">
+            <div className="grid grid-cols-3 sm:grid-cols-3 gap-3 mt-4">
               {[
                 { v: '1,069', l: 'unique companies' },
                 { v: '293', l: 'unique schools' },
@@ -176,7 +176,7 @@ export default function AnalysisPage() {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* PageRank table */}
             <div>
               <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Top Connectors — PageRank</p>
