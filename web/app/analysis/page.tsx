@@ -99,10 +99,15 @@ export default function AnalysisPage() {
             248 LinkedIn connections, mapped and measured
           </h1>
           <p className="text-gray-400 leading-relaxed">
-            This network was built from a LinkedIn connection export. Two people are linked if they
-            share a past employer or school, weighted by how many organizations they have in common.
-            The result is a graph that reveals invisible structure — who the real connectors are,
-            which communities exist, and where the network is fragile.
+            248 LinkedIn connections, modeled as a graph. Two people share an edge if they have a
+            past employer or school in common — the edge weight is how many organizations they{"'"}ve
+            both been part of. One shared org is a weak tie. Two or more means real overlap.
+          </p>
+          <p className="text-gray-400 leading-relaxed mt-3">
+            A few things stand out once you measure it: the most influential person in the network
+            is not its most critical bridge. Two Clemson clusters account for nearly half the nodes.
+            And a 17-person community produces more structural connectors than communities three
+            times its size.
           </p>
         </div>
 
