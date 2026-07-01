@@ -114,6 +114,7 @@ export async function fetchNodeProfile(id: string): Promise<NodeProfile | null> 
     RETURN
       p.full_name AS full_name,
       p.current_title AS title,
+      p.current_company AS company,
       p.linkedin_url AS linkedin_url,
       p.current_location AS location,
       p.community_id AS community_id,

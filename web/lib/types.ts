@@ -31,6 +31,7 @@ export interface NetworkMetrics {
 export interface NodeProfile {
   full_name: string
   title: string | null
+  company: string | null
   linkedin_url: string | null
   location: string | null
   community_id: number

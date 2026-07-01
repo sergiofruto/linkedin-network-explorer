@@ -64,6 +64,9 @@ export function NodePanel({ nodeId, onClose, onNodeSelect }: Props) {
           {/* Header */}
           <p className="text-sm font-semibold text-indigo-400 pr-6 leading-snug">{profile.full_name}</p>
           <p className="text-xs text-gray-500 mt-1 leading-snug">{profile.title ?? '—'}</p>
+          {profile.company && (
+            <p className="text-[11px] text-gray-400 mt-0.5">{profile.company}</p>
+          )}
           {profile.location && (
             <p className="text-[11px] text-gray-600 mt-1">{profile.location}</p>
           )}
