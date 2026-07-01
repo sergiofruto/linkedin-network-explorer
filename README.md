@@ -150,6 +150,42 @@ Set these env vars in Vercel:
 
 ## Key findings
 
-See [FINDINGS.md](./FINDINGS.md) for the full analysis, or visit `/analysis` in the app.
+See [FINDINGS.md](./FINDINGS.md) for the full analysis, or visit `/analysis` in the deployed app.
 
-Short version: 79% of the network belongs to one giant component, 50% attended Clemson University, and **influence ≠ structural importance** — the most influential person (Francis Pedraza, #1 PageRank) is not the most critical bridge (Madison Wilson, #1 Betweenness).
+### Connectivity
+- **248 people**, **7,163 KNOWS edges** derived from shared employers and schools
+- **51 connected components** — 195/248 people (79%) belong to one giant component; the remaining 53 are isolated pairs or singletons
+- **50% of the network attended Clemson University**, making it the dominant edge-generating institution
+
+### Most influential connectors (PageRank)
+| Rank | Name | PageRank |
+|---|---|---|
+| 1 | Francis Pedraza | 2.26 |
+| 2 | Matt Franchi | 1.61 |
+| 3 | Scott Downes | 1.57 |
+| 4 | Elenah Rosopa | 1.56 |
+| 5 | Brian W. | 1.51 |
+
+### Key structural bridges (Betweenness Centrality, main component)
+| Rank | Name | Betweenness |
+|---|---|---|
+| 1 | Madison Wilson | 1,999 |
+| 2 | Zach Hughes | 1,884 |
+| 3 | Adam Tresidder | 1,715 |
+| 4 | Emma T. | 1,554 |
+| 5 | Shelia Cotten | 984 |
+
+### Notable insight
+**Influence ≠ structural importance.** Francis Pedraza ranks #1 by PageRank but #7 by Betweenness — he is the most connected to other influential people, but Madison Wilson and Zach Hughes are harder to replace for network cohesion. Removing either would disconnect more paths than removing Francis.
+
+### Community structure
+Louvain detected **57 communities** (modularity = 0.10). The 6 largest named clusters:
+
+| Community | Size | Character |
+|---|---|---|
+| Clemson Academia | 61 | Top betweenness bridges live here |
+| Clemson Alumni | 57 | Alumni spread across industries post-Clemson |
+| Engineering & Startups | 27 | Highest internal density; all top-10 degree nodes |
+| Founder Network | 23 | Francis Pedraza's orbit; highest avg PageRank |
+| Research & Advisory | 17 | Structural bridge between Clemson and startups |
+| Intelligence Ops | 6 | Government/defense-adjacent, structurally isolated |
