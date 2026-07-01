@@ -34,10 +34,10 @@ export function MetricsSidebar({ metrics, nodes, onNodeSelect }: Props) {
 
       <Link
         href="/analysis"
-        className="flex items-center gap-2 w-full text-xs text-gray-400 hover:text-indigo-300 transition-colors group"
+        className="flex items-center justify-between w-full bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/25 hover:border-indigo-500/50 rounded-lg px-3 py-2.5 transition-colors group"
       >
-        Key Findings
-        <span className="ml-auto text-gray-700 group-hover:text-indigo-500 transition-colors">→</span>
+        <span className="text-sm font-medium text-indigo-300 group-hover:text-indigo-200">Key Findings</span>
+        <span className="text-indigo-500 group-hover:text-indigo-300 transition-colors">→</span>
       </Link>
 
       <div>
