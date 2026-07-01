@@ -10,6 +10,7 @@ Graph model:
 import json
 import os
 import re
+import unicodedata
 from neo4j import GraphDatabase
 from dotenv import load_dotenv
 
@@ -22,7 +23,10 @@ DATA_PATH = os.path.join(os.path.dirname(__file__), '..', 'x-connections.json')
 
 
 def slugify(name: str) -> str:
-    return re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
+    # Normalize unicode so accented chars map to their ASCII base
+    ascii_name = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('ascii')
+    slug = re.sub(r'[^a-z0-9]+', '-', ascii_name.lower()).strip('-')
+    return (slug or 'unknown')[:80]
 
 
 # ── STEP 1: Constraints ────────────────────────────────────────────────────────
